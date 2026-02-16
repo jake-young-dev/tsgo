@@ -1,6 +1,7 @@
 # tsgo
 
-A TeamSpeak 3 bot framework, it is a WIP
+A TeamSpeak 3 bot framework, it is a WIP. In order to be able to run command from all accounts the bot must use a
+serveradmin user
 
 ## Basic Example
 ```go
@@ -17,8 +18,9 @@ func main() {
 	bot, err := tsgo.New(tsgo.Config{
 		Address:  "192.168.0.1",
 		Port:     "10011",
-		Username: "username",
+		Username: "serveradmin",
 		Password: "password",
+		Server: 1,
 	})
 	if err != nil {
 		log.Fatal(err)

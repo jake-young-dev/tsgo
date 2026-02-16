@@ -20,7 +20,7 @@ const (
 	//server command to enable message events in channels
 	MSG_LISTENER_STRING = "servernotifyregister event=textchannel"
 	//determines which server to watch
-	SERVER_USE_STRING = "use 1"
+	SERVER_USE_STRING = "use %d"
 	//the 'action' string for messages being sent in channel texts
 	MSG_ACTION = "notifytextmessage"
 	//the connection read deadline, it is used to prevent the listener routine from locking
@@ -56,6 +56,8 @@ type Config struct {
 	Port     string
 	Username string
 	Password string
+	//the number to be used with the use command
+	Server int
 }
 
 // Message contains the needed fields for notifytextmessage events
@@ -130,9 +132,7 @@ func (t *tsBot) write(msg string) error {
 // and pass them to the handler function the return value is sent as a reply to the command. The ReadDeadline is reset
 // on each read or timeout to prevent the routine from locking for too long
 func (t *tsBot) listen() error {
-	//this needs to be moved to the config struct (the server number)
-	//i need to figure out how to pull it better though
-	err := t.writeSuccess(SERVER_USE_STRING)
+	err := t.writeSuccess(fmt.Sprintf(SERVER_USE_STRING, t.cfg.Server))
 	if err != nil {
 		return err
 	}
@@ -164,6 +164,7 @@ func (t *tsBot) listen() error {
 				continue
 			}
 
+			//prevent the bot from responding to itself
 			if r.Data["invokeruid"] == t.cfg.Username {
 				continue
 			}
