@@ -22,7 +22,9 @@ const (
 	//determines which server to watch
 	SERVER_USE_STRING = "use 1"
 	//the 'action' string for messages being sent in channel texts
-	MSG_ACTION        = "notifytextmessage"
+	MSG_ACTION = "notifytextmessage"
+	//the connection read deadline, it is used to prevent the listener routine from locking
+	//forever, for some reason any low values prevent the connection from properly reading responses
 	MSG_READ_DEADLINE = time.Second * 5
 )
 
@@ -229,7 +231,8 @@ func (t *tsBot) Start() error {
 	}
 
 	<-t.kill
-	//resend to cleanup goroutine
+	//since we have already consumed the interrupt, send another to allow the listener
+	//routine to finish
 	t.kill <- os.Interrupt
 	return nil
 }
@@ -255,6 +258,10 @@ func (t *tsBot) writeSuccess(msg string) error {
 	parsed, err := t.parseResponse(res)
 	if err != nil {
 		return err
+	}
+
+	if parsed.Action != "error" {
+		return fmt.Errorf("the server returned an unexpected response: %v", parsed)
 	}
 
 	if parsed.Msg() != "ok" {
