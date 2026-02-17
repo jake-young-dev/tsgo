@@ -8,6 +8,7 @@ serveradmin user
 package main
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -16,31 +17,30 @@ import (
 
 func main() {
 	bot, err := tsgo.New(tsgo.Config{
-		Address:  "192.168.0.1",
-		Port:     "10011",
+		Address:  "IP address",
+		Port:     "10011", //Server query port
 		Username: "serveradmin",
 		Password: "password",
-		Server: 1,
+		Server:   1,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	bot.AddHandler(func(m tsgo.Message) (string, error) {
+		fmt.Printf("%s: %s\n", m.InvokerName, m.Msg)
 		if strings.HasPrefix(m.Msg, ".") {
 			switch m.Msg {
 			case ".ping":
 				return "pong", nil
+			case ".test":
+				return "tost", nil
 			}
 		}
 		return "", nil
 	})
 
 	if err := bot.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := bot.Close(); err != nil {
 		log.Fatal(err)
 	}
 }

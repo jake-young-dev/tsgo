@@ -1,3 +1,6 @@
+/*
+tsgo is a TeamSpeak 3 bot framework that uses the TS3 Server Query protocol
+*/
 package tsgo
 
 import (
