@@ -22,10 +22,8 @@ const (
 	//determines which server to watch
 	SERVER_USE_STRING = "use %d"
 	//the 'action' string for messages being sent in channel texts
-	MSG_ACTION = "notifytextmessage"
-	//the connection read deadline, it is used to prevent the listener routine from locking
-	//forever, for some reason any low values prevent the connection from properly reading responses
-	MSG_READ_DEADLINE = time.Second * 5
+	MSG_ACTION        = "notifytextmessage"
+	MSG_READ_DEADLINE = time.Minute * 2
 )
 
 var (
