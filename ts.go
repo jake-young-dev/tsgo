@@ -23,7 +23,7 @@ const (
 	SERVER_USE_STRING = "use %d"
 	//the 'action' string for messages being sent in channel texts
 	MSG_ACTION        = "notifytextmessage"
-	MSG_READ_DEADLINE = time.Minute * 2
+	MSG_READ_DEADLINE = time.Minute * 1
 )
 
 var (
@@ -83,7 +83,7 @@ type TsBot interface {
 	write(msg string) error
 	listen() error
 	Start() error
-	Close() error
+	close() error
 	parseResponse(res string) (*response, error)
 	AddHandler(f Handler)
 }
@@ -202,7 +202,7 @@ func (t *tsBot) listen() error {
 
 // Start dials the teamspeak server and initializes the connections reader. On connection it will consume the teamspeak
 // welcome banner and attempt a login with the provided credentials and, if successful will listen for messages. This function
-// is BLOCKING and all setup should be handled before
+// is BLOCKING, all setup should be handled before. Safe shutdown is handled automatically
 func (t *tsBot) Start() error {
 	conn, err := net.Dial(PROTOCOL, net.JoinHostPort(t.cfg.Address, t.cfg.Port))
 	if err != nil {
@@ -233,13 +233,16 @@ func (t *tsBot) Start() error {
 	//since we have already consumed the interrupt, send another to allow the listener
 	//routine to finish
 	t.kill <- os.Interrupt
-	return nil
+	return t.close()
 }
 
-// Close waits for the listener go routine to finish and closes the connection to the server
-func (t *tsBot) Close() error {
+// close handles proper bot shutdown, the underlying tcp connection is closed to timeout any read calls
+// waiting in the listener routine. This allows the routine to be cleaned up without waiting for the read
+// deadline to be triggered
+func (t *tsBot) close() error {
+	err := t.server.Close()
 	<-t.clean
-	return t.server.Close()
+	return err
 }
 
 // writeSuccess writes the msg to the server and checks the response for an "ok" response
@@ -256,15 +259,15 @@ func (t *tsBot) writeSuccess(msg string) error {
 
 	parsed, err := t.parseResponse(res)
 	if err != nil {
-		return err
+		return fmt.Errorf("%e, msg: %s", err, res)
 	}
 
 	if parsed.Action != "error" {
-		return fmt.Errorf("the server returned an unexpected response: %v", parsed)
+		return fmt.Errorf("%e: %s", ErrInvalidResponse, res)
 	}
 
 	if parsed.Msg() != "ok" {
-		return fmt.Errorf("server returned an error code: %s", msg)
+		return fmt.Errorf("server returned an error code: %s", parsed.Msg())
 	}
 
 	return nil
