@@ -12,13 +12,13 @@ import (
 	"log"
 	"strings"
 
-	"code.jakeyoungdev.com/jake/tsgo"
+	"github.com/jake-young-dev/tsgo"
 )
 
 func main() {
 	bot, err := tsgo.New(tsgo.Config{
-		Address:  "IP address",
-		Port:     "10011", //Server query port
+		Address:  "127.0.0.1",
+		Port:     "10011",
 		Username: "serveradmin",
 		Password: "password",
 		Server:   1,
@@ -34,7 +34,7 @@ func main() {
 			case ".ping":
 				return "pong", nil
 			case ".test":
-				return "tost", nil
+				return "testing", nil
 			}
 		}
 		return "", nil

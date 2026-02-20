@@ -1,3 +1,3 @@
-module code.jakeyoungdev.com/jake/tsgo
+module github.com/jake-young-dev/tsgo
 
 go 1.24.6
