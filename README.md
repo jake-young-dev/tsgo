@@ -1,7 +1,7 @@
 # tsgo
 
-A TeamSpeak 3 bot framework, it is a WIP. In order to be able to run command from all accounts the bot must use a
-serveradmin user
+tsgo is a TeamSpeak 3 bot framework that utilizes the Server Query protocol to support text commands, tsgo is in development and may
+encounter breaking changes until v1 release
 
 ## Basic Example
 ```go
